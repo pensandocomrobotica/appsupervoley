@@ -7,12 +7,12 @@ import { getFirestore } from "firebase/firestore";
 // role até "Seus aplicativos" → clique no ícone </> (Web) → copie o objeto
 // "firebaseConfig" e cole os valores abaixo, substituindo os textos entre aspas.
 const firebaseConfig = {
-  apiKey: "COLE_AQUI_SUA_API_KEY",
-  authDomain: "COLE_AQUI_SEU_PROJETO.firebaseapp.com",
-  projectId: "COLE_AQUI_SEU_PROJETO_ID",
-  storageBucket: "COLE_AQUI_SEU_PROJETO.appspot.com",
-  messagingSenderId: "COLE_AQUI_SEU_SENDER_ID",
-  appId: "COLE_AQUI_SEU_APP_ID",
+  apiKey: "AIzaSyAazVNdL6443IQgdMvXuvKFIR0uJd70vwI",
+  authDomain: "supervoleyapp.firebaseapp.com",
+  projectId: "supervoleyapp",
+  storageBucket: "supervoleyapp.firebasestorage.app",
+  messagingSenderId: "937214903109",
+  appId: "1:937214903109:web:ac9ab2af4cfbaff4d3342c",
 };
 
 const app = initializeApp(firebaseConfig);
