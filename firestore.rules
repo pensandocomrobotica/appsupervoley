@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 👉 Lista de administradores gerais (podem encerrar/excluir QUALQUER
+    // torneio). Mantenha esta lista igual à constante ADMIN_EMAILS em
+    // src/App.jsx.
+    function isSuperAdmin() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          "pensandocomrobotica@gmail.com"
+        ];
+    }
+
+    // Dono do torneio (quem criou) ou administrador geral.
+    function isOwnerOrSuperAdmin(data) {
+      return request.auth != null &&
+        (data.createdBy == request.auth.token.email || isSuperAdmin());
+    }
+
+    match /tournaments/{tournamentId} {
+      // Qualquer pessoa pode LER os torneios (rodadas, placares, classificação)
+      // sem precisar estar logada — é o que permite compartilhar o link.
+      allow read: if true;
+
+      // Criar um torneio novo é permitido para qualquer pessoa logada
+      // (qualquer conta cadastrada no app é "organizador").
+      allow create: if request.auth != null;
+
+      // Editar um torneio existente (lançar placar) é permitido para
+      // qualquer pessoa logada — EXCETO quando a edição encerra o torneio
+      // (muda o status para "closed"): nesse caso, só o dono do torneio ou
+      // um administrador geral pode fazer a alteração.
+      allow update: if request.auth != null &&
+        (request.resource.data.status != 'closed' || isOwnerOrSuperAdmin(resource.data));
+
+      // Excluir só é permitido para quem criou aquele torneio específico,
+      // ou para um administrador geral (lista acima).
+      allow delete: if isOwnerOrSuperAdmin(resource.data);
+    }
+  }
+}
