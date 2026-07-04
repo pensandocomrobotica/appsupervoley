@@ -1,0 +1,55 @@
+name: Build APK de teste (Android)
+
+# Gera um APK de depuração (debug) sempre que houver um push na branch main,
+# ou quando disparado manualmente. Esse APK NÃO é o mesmo que vai para a Play
+# Store (aquele precisa ser assinado com a chave de release, veja ANDROID.md)
+# — serve só para testar rapidamente, direto no celular ou num emulador
+# online (ex.: appetize.io), sem precisar instalar o Android Studio.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Gerar build do site
+        run: npm run build
+
+      - name: Sincronizar com o projeto Android
+        run: npx cap sync android
+
+      - name: Configurar Java (necessário para o Gradle)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Garantir permissão de execução do Gradle
+        working-directory: android
+        run: chmod +x gradlew
+
+      - name: Compilar APK de depuração
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Disponibilizar o APK para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: torneio-praia-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
